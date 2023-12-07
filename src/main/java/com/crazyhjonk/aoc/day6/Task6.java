@@ -28,6 +28,7 @@ public class Task6 {
             reader.close();
 
             System.out.println("Part 1: " + part1(lines));
+            System.out.println("Part 2: " + task2(lines));
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -61,6 +62,37 @@ public class Task6 {
             int timeCharging = i;
             int timeTravelling = time - i;
             int velocity = timeCharging;
+            //for (int j = 1; j <= timeCharging; j++) {
+            //    velocity++;
+            //}
+            if (velocity * timeTravelling >= distance) {
+                sum++;
+            }
+        }
+        return sum;
+    }
+
+
+    private static long task2(List<String> lines) {
+        long time = processLine2(lines.get(0));
+        long distance = processLine2(lines.get(1));
+        return calcRace(time, distance);
+    }
+
+    private static long processLine2(String line) {
+        String[] split = Arrays.stream(line.split(": ")[1].split(" +"))
+            .filter(s -> !s.isEmpty()).toArray(String[]::new);
+        long number = Arrays.stream(split).reduce(String::concat).stream().mapToLong(Long::parseLong).sum();
+        System.out.println(number);
+        return number;
+    }
+
+    private static long calcRace(long time,long distance) {
+        long sum = 0;
+        for (long i = 0; i < time; i++) {
+            long timeCharging = i;
+            long timeTravelling = time - i;
+            long velocity = timeCharging;
             //for (int j = 1; j <= timeCharging; j++) {
             //    velocity++;
             //}

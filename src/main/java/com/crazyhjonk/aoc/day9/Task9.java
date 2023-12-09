@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Task9 {
@@ -28,7 +29,7 @@ public class Task9 {
             reader.close();
 
             System.out.println("Part 1: " + lines.stream().map(Task9::processLine).mapToLong(Long::longValue).sum());
-            //System.out.println("Part 2: " + lines.stream().map(Task9::processLinePt2).mapToInt(Integer::intValue).sum());
+            System.out.println("Part 2: " + lines.stream().map(Task9::processLine2).mapToLong(Long::longValue).sum());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -55,5 +56,13 @@ public class Task9 {
         }
 
         return extrapolatedNumber;
+    }
+
+    private static long processLine2(String line) {
+        List<Long> numbers = new ArrayList<>(Arrays.stream(line.split(" "))
+            .filter(s -> !s.isEmpty()).map(Long::parseLong).toList());
+
+        Collections.reverse(numbers);
+        return processLine(numbers.stream().map(Object::toString).reduce("", (s, s2) -> s + s2 + " "));
     }
 }

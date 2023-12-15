@@ -30,6 +30,8 @@ public class Task5Attempt2 {
 
     private static final Map<Maps, List<Triple<Long, Long, Long>>> conversions = new HashMap<>();
 
+    private static List<List<Triple<Long, Long, Long>>> orderedConversions;
+
     private static List<Long> seeds;
 
     private static long maxIndex;
@@ -77,8 +79,11 @@ public class Task5Attempt2 {
             }
             conversions.put(currentConversionList.getKey(), currentConversionList.getValue());
             reader.close();
+            orderedConversions = conversions.entrySet().stream().sorted(Comparator.comparingInt(map -> map.getKey().INDEX))
+                .map(Map.Entry::getValue).toList();
 
             System.out.println("Result Part 1: " + getLowestIndex());
+            System.out.println("Result Part 2: " + getLowestIndexPart2());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -92,21 +97,36 @@ public class Task5Attempt2 {
 
     public static long getLowestIndex() {
         long min = 0;
-        long count = 0;
         for (Long seed : seeds) {
-            System.out.println("Processing seed: " + (count + 1) + "/" + seeds.size());
             long result = tracePath(seed);
             min = min == 0 || result < min ? result : min;
+        }
+        return min;
+    }
+
+    public static long getLowestIndexPart2() {
+        long min = 0;
+        int count = 0;
+        List<Pair<Long, Long>> ranges = new ArrayList<>();
+        for (int i = 0; i < seeds.size(); i += 2) {
+            ranges.add(Pair.of(seeds.get(i), seeds.get(i) + seeds.get(i + 1)));
+        }
+
+        for (Pair<Long, Long> range : ranges) {
+            for (long seed = range.getLeft(); seed < range.getRight(); seed++) {
+                long result = tracePath(seed);
+                min = min == 0 || result < min ? result : min;
+            }
             count++;
+            System.out.println("Processed Range " + count);
         }
         return min;
     }
 
     public static long tracePath(long input) {
         long currentNumber = input;
-        for (var conversion : conversions.entrySet().stream()
-            .sorted(Comparator.comparingInt(map -> map.getKey().INDEX)).toList()) {
-            long distance = getDistance(conversion.getValue(), currentNumber);
+        for (List<Triple<Long, Long, Long>> conversion : orderedConversions) {
+            long distance = getDistance(conversion, currentNumber);
             currentNumber += distance;
         }
         return currentNumber;
@@ -119,10 +139,11 @@ public class Task5Attempt2 {
             long source = triple.getMiddle();
             long range = triple.getRight();
 
-            if (currentNumber > source && currentNumber < source + range) {
+            if (currentNumber >= source && currentNumber <= source + range) {
                 distance = destination - source;
             }
         }
         return distance;
+        //last result: 57451710
     }
 }
